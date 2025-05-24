@@ -1,0 +1,23 @@
+{
+  "name": "lost_and_found",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn src/index.ts",
+  "build": "tsc",
+  "start": "node dist/test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.15.18",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
+  }
+}
