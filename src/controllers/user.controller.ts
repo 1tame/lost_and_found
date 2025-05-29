@@ -48,6 +48,7 @@ const values = [newUser.user_name, newUser.email, newUser.password, newUser.phon
   }
 };
 
+//Login 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_key';
 
