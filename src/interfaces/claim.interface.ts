@@ -7,9 +7,10 @@ export interface Claim {
     item_color: string;
     model?: string;
     special_tag_or_symbol?: string;
-    specific_loacation?: string;
+    specific_location?: string;
 
     image?: string;
     status?: 'pending' | 'Rejected' | 'Approved';
     created_at?: Date;
 }
+

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { pool } from '../config/db';
 import { Item } from '../interfaces/item.interface';
-
+//import { RowDataPacket } from "mysql2";
 
 
 //Add item
@@ -17,7 +17,7 @@ export const addItem = async (req:Request, res:Response)=>{
             return res.status(400).json({message: " status must be 'Lost' or 'Found'"});
         }
 
-        //const created_by = req.user?.id;
+        const created_by =  (req as any).user.id;
 
     const newItem: Item = {
         item_type,
@@ -40,4 +40,37 @@ export const addItem = async (req:Request, res:Response)=>{
         console.error(error);
         res.status(500).json({ message: 'Server error'});
     }
+};
+
+
+// search item /// 
+
+export const searchItem = async (req: Request, res: Response) => {
+  try {
+    const { item_type, city } = req.body;
+
+    if (!item_type || !city) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const query = `
+      SELECT * FROM items 
+      WHERE LOWER(item_type) = LOWER(?) 
+        AND LOWER(city) = LOWER(?) 
+        AND status = 'Found'
+    `;
+
+    const [result] = await pool.execute(query, [item_type, city]);
+
+    if ((result as any[]).length === 0) {
+      return res.status(404).json({ message: "No matching items found" });
+    }
+
+    res.status(200).json({
+      message: "Items fetched successfully",
+      results: result,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
 };
