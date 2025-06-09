@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+
 
 function LoginPage() {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
 
+  const navigate = useNavigate();
+
+ 
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -15,7 +21,8 @@ function LoginPage() {
       });
 
       localStorage.setItem('token', res.data.token);
-      alert('Logged in!');
+      navigate('/dashboard');
+      //alert('Logged in!');
       // navigate to dashboard (later)
     } catch (err) {
       alert('Login failed');
