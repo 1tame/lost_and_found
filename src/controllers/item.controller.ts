@@ -74,3 +74,28 @@ export const searchItem = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+// Get all lost items
+export const getLostItems = async (req: Request, res: Response) => {
+  try {
+    const query = `
+      SELECT * FROM items 
+      WHERE status = 'Lost'
+    `;
+
+    const [result] = await pool.execute(query);
+
+    if ((result as any[]).length === 0) {
+      return res.status(404).json({ message: "No lost items found" });
+    }
+
+    res.status(200).json({
+      message: "Lost items fetched successfully",
+      items: result,
+    });
+  } catch (error) {
+    console.error("Error fetching lost items:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
