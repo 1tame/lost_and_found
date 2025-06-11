@@ -6,3 +6,6 @@ export interface User{
     phone: number;
     created_at?: Date;
 }
+
+
+

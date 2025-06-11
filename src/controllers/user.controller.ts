@@ -80,7 +80,7 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 
     // Create token
-    const token = Jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+    const token = Jwt.sign({ id: user.id, email: user.email,  user_name: user.user_name, }, JWT_SECRET, {
       expiresIn: "1d",
     });
 

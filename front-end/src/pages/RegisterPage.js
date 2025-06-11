@@ -1,3 +1,4 @@
+import '../authStyles.css'; // 👈 import the style
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -7,20 +8,14 @@ function RegisterPage() {
   const [email, setEmail]       = useState('');
   const [phone, setPhone]       = useState('');
   const [password, setPassword] = useState('');
-
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-
     try {
-      const res = await axios.post('http://localhost:3001/api/users/add', {
-        user_name,
-        email,
-        phone,
-        password,
+      await axios.post('http://localhost:3001/api/users/add', {
+        user_name, email, phone, password
       });
-
       alert('Registered successfully');
       navigate('/');
     } catch (err) {
@@ -30,7 +25,7 @@ function RegisterPage() {
   };
 
   return (
-    <div>
+    <div className="auth-container">
       <h2>Register</h2>
       <form onSubmit={handleRegister}>
         <input type="text" placeholder="Username" value={user_name} onChange={(e) => setUserName(e.target.value)} />

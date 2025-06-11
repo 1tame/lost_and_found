@@ -82,11 +82,17 @@ export const getClaimsForMyItems = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id; // Logged-in user's ID
 
-    const query = `
+        const query = `
       SELECT 
         c.id AS claim_id,
         c.status,
         c.created_at,
+        c.item_name,
+        c.item_color,
+        c.model,
+        c.special_tag_or_symbol,
+        c.specific_location,
+        c.image,
         i.item_type,
         u.user_name AS claimant_name,
         u.email AS claimant_email,
@@ -97,6 +103,7 @@ export const getClaimsForMyItems = async (req: Request, res: Response) => {
       WHERE i.created_by = ?
       ORDER BY c.created_at DESC
     `;
+
 
     const [rows] = await pool.query(query, [userId]);
 
@@ -172,8 +179,8 @@ export const getMyClaimHistory = async (req: Request, res: Response) => {
         c.id AS claim_id,
         c.status,
         c.created_at,
-        i.item_type,
-        i.item_name
+        i.item_type
+        
       FROM claims c
       JOIN items i ON c.item_id = i.id
       WHERE c.claimant_id = ?
@@ -185,5 +192,32 @@ export const getMyClaimHistory = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching claim history:', error);
     res.status(500).json({ message: 'Failed to fetch your claim history' });
+  }
+};
+
+
+
+
+// controllers/claim.controller.ts
+export const deleteClaim = async (req: Request, res: Response) => {
+  const { claimId } = req.params;
+  const userId = (req as any).user.id;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM claims WHERE id = ? AND claimant_id = ?`,
+      [claimId, userId]
+    );
+
+    if ((rows as any).length === 0) {
+      return res.status(404).json({ message: "Claim not found or not yours" });
+    }
+
+    await pool.query(`DELETE FROM claims WHERE id = ?`, [claimId]);
+
+    res.status(200).json({ message: "Claim deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting claim:", error);
+    res.status(500).json({ message: "Server error while deleting claim" });
   }
 };

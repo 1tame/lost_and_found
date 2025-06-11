@@ -1,0 +1,50 @@
+.claims-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.claim-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: #fff;
+}
+
+.claim-image {
+  margin-top: 8px;
+  border-radius: 4px;
+  width: 150px;
+}
+
+.divider {
+  margin: 16px 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+.timestamp {
+  margin-top: 12px;
+  color: #555;
+}
+
+.button-group {
+  margin-top: 12px;
+}
+
+.action-button {
+  margin-right: 10px;
+  padding: 6px 12px;
+  background-color: silver;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.action-button:hover {
+  transform: scale(1.03);
+}

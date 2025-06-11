@@ -5,41 +5,67 @@ import { Item } from '../interfaces/item.interface';
 
 
 //Add item
-export const addItem = async (req:Request, res:Response)=>{
-    try{
-        const {item_type, city, status} = req.body;
+export const addItem = async (req: Request, res: Response) => {
+  try {
+    const { item_type, city, status, description } = req.body;
 
-        if(!item_type || !city || !status){
-            return res.status(400).json({message: "All fields are required!"});
-        }
+    if (!item_type || !city || !status) {
+      return res.status(400).json({ message: "All fields are required!" });
+    }
 
-        if(status !='Lost' && status !='Found'){
-            return res.status(400).json({message: " status must be 'Lost' or 'Found'"});
-        }
+    if (status !== 'Lost' && status !== 'Found') {
+      return res.status(400).json({ message: "Status must be 'Lost' or 'Found'" });
+    }
 
-        const created_by =  (req as any).user.id;
+    const created_by = (req as any).user.id;
 
-    const newItem: Item = {
+    // 🟡 For lost items: require description
+    if (status === 'Lost' && !description) {
+      return res.status(400).json({ message: "Description is required for lost items." });
+    }
+
+    // 🟡 For lost items: check if image file is provided
+    let image = null;
+    if (status === 'Lost') {
+      if (req.file) {
+        image = req.file.filename;
+      } else {
+        // image is optional, so we allow it to stay null
+        image = null;
+      }
+    }
+
+    const query = `
+      INSERT INTO items (item_type, city, status, created_by, description, image)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      item_type,
+      city,
+      status,
+      created_by,
+      status === 'Lost' ? description : null,
+      status === 'Lost' ? image : null,
+    ];
+
+    const [result] = await pool.execute(query, values);
+
+    res.status(201).json({
+      message: 'Item added successfully',
+      item: {
+        id: (result as any).insertId,
         item_type,
         city,
-        status
-    };
-
-    const query = `INSERT INTO items (item_type, city, status)
-                   VALUES (?, ?, ?)`;
-
-    const values = [newItem.item_type, newItem.city, newItem.status];
-
-               const [result] = await pool.execute(query, values);
-
-               res.status(201).json({
-                message: 'Item added successfully',
-                item: { ...newItem, id: (result as any).insertId}
-               });
-    }catch(error){
-        console.error(error);
-        res.status(500).json({ message: 'Server error'});
-    }
+        status,
+        description: status === 'Lost' ? description : undefined,
+        image: status === 'Lost' ? image : undefined,
+      },
+    });
+  } catch (error) {
+    console.error('Error adding item:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
 
@@ -47,16 +73,18 @@ export const addItem = async (req:Request, res:Response)=>{
 
 export const searchItem = async (req: Request, res: Response) => {
   try {
-    const { item_type, city } = req.body;
+    const normalize = (str: string) => str.trim().toLowerCase();
+    const item_type = normalize(req.body.item_type || '');
+    const city = normalize(req.body.city || '');
 
     if (!item_type || !city) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: "Both item type and city are required" });
     }
 
     const query = `
       SELECT * FROM items 
-      WHERE LOWER(item_type) = LOWER(?) 
-        AND LOWER(city) = LOWER(?) 
+      WHERE LOWER(item_type) LIKE CONCAT('%', ?, '%') 
+        AND LOWER(city) LIKE CONCAT('%', ?, '%') 
         AND status = 'Found'
     `;
 
@@ -71,6 +99,7 @@ export const searchItem = async (req: Request, res: Response) => {
       results: result,
     });
   } catch (error) {
+    console.error('Search error:', error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -79,10 +108,20 @@ export const searchItem = async (req: Request, res: Response) => {
 // Get all lost items
 export const getLostItems = async (req: Request, res: Response) => {
   try {
-    const query = `
-      SELECT * FROM items 
-      WHERE status = 'Lost'
-    `;
+   const query = `
+  SELECT 
+    items.id AS item_id,
+    items.item_type,
+    items.city,
+    items.image,
+    items.created_at,
+    users.user_name,
+    users.email,
+    users.phone
+  FROM items
+  JOIN users ON items.created_by = users.id
+  WHERE items.status = 'Lost'
+`;
 
     const [result] = await pool.execute(query);
 
