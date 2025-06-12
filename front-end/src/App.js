@@ -7,6 +7,7 @@ import AddItemPage from './pages/AddItemPage';
 import SearchItemsPage from './pages/SearchItemsPage';
 import ClaimsOnMyItems from './pages/ClaimsOnMyItems';
 import MyClaimHistory from './pages/MyClaimsHistory';
+import { ToastContainer } from 'react-toastify';
 
 
 
@@ -15,6 +16,8 @@ import MyClaimHistory from './pages/MyClaimsHistory';
 function App() {
   return (
     <Router>
+      <div>
+        <ToastContainer />
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -24,6 +27,7 @@ function App() {
         <Route path='/view-claims' element={<ClaimsOnMyItems/>}/>
         <Route path='/my-claims' element={<MyClaimHistory/>}/>
       </Routes>
+       </div>
     </Router>
   );
 }

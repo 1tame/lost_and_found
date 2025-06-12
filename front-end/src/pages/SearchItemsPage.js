@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import '../SearchItemPage.css';
+import { showSuccess, showError } from '../ToastService'; 
+import { Link } from 'react-router-dom';
+import '../dashboardStyles.css'; 
+
+
+
 
 const SearchItemsPage = () => {
   const [itemType, setItemType] = useState('');
@@ -7,8 +14,7 @@ const SearchItemsPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeClaimId, setActiveClaimId] = useState(null);
-  const [claimData, setClaimData] = useState
-  ({
+  const [claimData, setClaimData] = useState({
     item_name: '',
     item_color: '',
     model: '',
@@ -19,14 +25,13 @@ const SearchItemsPage = () => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!itemType || !city) return alert('Both fields are required');
+    if (!itemType || !city) return showError('Both fields are required');
 
     try {
       setLoading(true);
       setError('');
       const token = localStorage.getItem('token');
       const res = await fetch('http://localhost:3001/api/items/search', {
-
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +69,7 @@ const SearchItemsPage = () => {
 
       const data = await res.json();
       if (res.ok) {
-        alert('Claim submitted!');
+        showSuccess('Claim submitted!');
         setActiveClaimId(null);
         setClaimData({
           item_name: '',
@@ -75,11 +80,11 @@ const SearchItemsPage = () => {
           image: null,
         });
       } else {
-        alert(data.message || 'Claim failed');
+        showError(data.message || 'Claim failed');
       }
     } catch (err) {
       console.error(err);
-      alert('Server error');
+      showError('Server error');
     }
   };
 
@@ -89,16 +94,33 @@ const SearchItemsPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+
+    
+    <div className="search-page-container">
+      <nav className="dashboard-nav">
+              <Link to="/add-item">Add Item</Link>
+              <Link to="/search-item">Search Items</Link>
+              <Link to="/my-claims">My Claims</Link>
+              <Link to="/view-claims">Claims on My Items</Link>
+                  <Link to="/dashboard">Home page</Link>
+    
+              
+            </nav>
+
       <h2>Search Found Items</h2>
-      <form onSubmit={handleSearch}>
+
+       
+
+      <form onSubmit={handleSearch} className="search-form">
         <input
+          type="text"
           value={itemType}
           onChange={(e) => setItemType(e.target.value)}
           placeholder="Item Type"
           required
         />
         <input
+          type="text"
           value={city}
           onChange={(e) => setCity(e.target.value)}
           placeholder="City"
@@ -108,33 +130,14 @@ const SearchItemsPage = () => {
         <button type="submit">Search</button>
       </form>
 
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {loading && <p className="loading-message">Loading...</p>}
+      {error && <p className="error-message">{error}</p>}
 
       {results.map((item) => (
-        <div
-          key={item.id}
-          style={{
-            border: '1px solid #ccc',
-            padding: '10px',
-            marginTop: '15px',
-            borderRadius: '8px',
-            backgroundColor: '#f9f9f9',
-            position: 'relative',
-          }}
-        >
-          {/* ❌ Close icon to remove this result card */}
+        <div key={item.id} className="result-card">
           <span
             onClick={() => handleRemoveItem(item.id)}
-            style={{
-              position: 'absolute',
-              top: '5px',
-              right: '10px',
-              cursor: 'pointer',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              color: '#999',
-            }}
+            className="remove-icon"
             title="Remove this result"
           >
             ❌
@@ -147,57 +150,58 @@ const SearchItemsPage = () => {
           <button onClick={() => setActiveClaimId(item.id)}>Claim</button>
 
           {activeClaimId === item.id && (
-            <div style={{ marginTop: '10px', backgroundColor: '#fff', padding: '10px', position: 'relative' }}>
-              {/* ❌ Close icon to cancel claim form */}
+            <div className="claim-form">
               <span
                 onClick={() => setActiveClaimId(null)}
-                style={{
-                  position: 'absolute',
-                  top: '5px',
-                  right: '10px',
-                  cursor: 'pointer',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  color: '#999',
-                }}
+                className="close-icon"
                 title="Close claim form"
               >
                 ❌
               </span>
 
               <h4>Submit Claim</h4>
+              <div className="claim-notice">
+  ⚠️ <strong>Notice:</strong> Your contact details will be shared with the person who found this item so they can verify your claim and reach out to you.
+</div>
+
               <input
+                type="text"
                 placeholder="Item Name *"
                 value={claimData.item_name}
                 onChange={(e) => setClaimData({ ...claimData, item_name: e.target.value })}
                 required
-              /><br />
+              />
               <input
+                type="text"
                 placeholder="Item Color *"
                 value={claimData.item_color}
                 onChange={(e) => setClaimData({ ...claimData, item_color: e.target.value })}
                 required
-              /><br />
+              />
               <input
+                type="text"
                 placeholder="Model (optional)"
                 value={claimData.model}
                 onChange={(e) => setClaimData({ ...claimData, model: e.target.value })}
-              /><br />
+              />
               <input
+                type="text"
                 placeholder="Special Tag or Symbol"
                 value={claimData.special_tag_or_symbol}
                 onChange={(e) => setClaimData({ ...claimData, special_tag_or_symbol: e.target.value })}
-              /><br />
+              />
               <input
+                type="text"
                 placeholder="Specific Location"
                 value={claimData.specific_location}
                 onChange={(e) => setClaimData({ ...claimData, specific_location: e.target.value })}
-              /><br />
+              />
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setClaimData({ ...claimData, image: e.target.files[0] })}
-              /><br /><br />
+              />
+              <br /><br />
               <button onClick={() => handleClaimSubmit(item.id)}>Submit Claim</button>
             </div>
           )}

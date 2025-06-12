@@ -105,3 +105,14 @@
   object-fit: contain;
   border-radius: 8px;
 }
+
+
+.contact-link {
+  color: #0077cc;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.contact-link:hover {
+  color: #005fa3;
+}

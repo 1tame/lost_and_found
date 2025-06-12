@@ -1,4 +1,4 @@
-import '../dashboardStyles.css'; // 👈 Add this
+import '../dashboardStyles.css'; 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
@@ -58,6 +58,8 @@ function DashboardPage() {
         <Link to="/search-item">Search Items</Link>
         <Link to="/my-claims">My Claims</Link>
         <Link to="/view-claims">Claims on My Items</Link>
+                      <Link to="/dashboard">Home page</Link>
+        
         <button onClick={handleLogout}>Logout</button>
       </nav>
 
@@ -68,20 +70,34 @@ function DashboardPage() {
         ) : (
           <div className="items-grid">
             {lostItems.map(item => (
-              <div key={item.item_id} className="item-card">
-                <h4>{item.item_type}</h4>
-                <p><strong>City:</strong> {item.city}</p>
-                <p><strong>Description:</strong> {item.description}</p>
-                <p><strong>Reported by:</strong> {item.user_name}</p>
-                <p><strong>Email:</strong> {item.email}</p>
-                <p><strong>Phone:</strong> {item.phone}</p>
-                {item.image && (
-                  <img
-                    src={`http://localhost:3001/uploads/${item.image}`}
-                    alt="item"
-                  />
-                )}
-              </div>
+             <div key={item.item_id} className="item-card">
+  <h4>{item.item_type}</h4>
+  <p><strong>City:</strong> {item.city}</p>
+  <p><strong>Description:</strong> {item.description}</p>
+  <p><strong>Reported by:</strong> {item.user_name}</p>
+
+  <p>
+    <strong>Email:</strong>{' '}
+    <a href={`mailto:${item.email}`} className="contact-link">
+      {item.email}
+    </a>
+  </p>
+
+  <p>
+    <strong>Phone:</strong>{' '}
+    <a href={`tel:${item.phone}`} className="contact-link">
+      {item.phone}
+    </a>
+  </p>
+
+  {item.image && (
+    <img
+      src={`http://localhost:3001/uploads/${item.image}`}
+      alt="item"
+    />
+  )}
+</div>
+
             ))}
           </div>
         )}

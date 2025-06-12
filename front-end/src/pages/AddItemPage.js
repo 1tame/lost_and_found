@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import '../AddItemPage.css'; // Import the CSS file
+import '../AddItemPage.css';
+import { showSuccess, showError } from '../ToastService';
+
+import { Link } from 'react-router-dom';
+
+
 
 const AddItemPage = () => {
   const [item_type, setItemType] = useState('');
@@ -12,7 +17,7 @@ const AddItemPage = () => {
     e.preventDefault();
 
     if (!item_type || !city || !status) {
-      alert('Item type, city, and status are required');
+      showError('Item type, city, and status are required');
       return;
     }
 
@@ -48,23 +53,34 @@ const AddItemPage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert('Item added successfully!');
+        showSuccess('Item added successfully!');
         setItemType('');
         setCity('');
         setStatus('');
         setDescription('');
         setImage(null);
       } else {
-        alert(data.message || 'Something went wrong');
+        showError(data.message || 'Something went wrong');
       }
     } catch (err) {
       console.error('Error:', err);
-      alert('Server error');
+      showError('Server error');
     }
   };
 
   return (
     <div className="add-item-container">
+
+      <nav className="dashboard-nav">
+              <Link to="/add-item">Add Item</Link>
+              <Link to="/search-item">Search Items</Link>
+              <Link to="/my-claims">My Claims</Link>
+              <Link to="/view-claims">Claims on My Items</Link>
+              <Link to="/dashboard">Home page</Link>
+
+              
+            </nav>
+
       <h2 className="add-item-title">Add Lost or Found Item</h2>
 
       <form onSubmit={handleSubmit} className="add-item-form">

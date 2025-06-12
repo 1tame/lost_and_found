@@ -1,7 +1,8 @@
-import '../authStyles.css'; // 👈 import the style
+import '../authStyles.css';
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { showSuccess, showError } from '../ToastService'; // 👈 Import Toasts
 
 function RegisterPage() {
   const [user_name, setUserName] = useState('');
@@ -16,10 +17,10 @@ function RegisterPage() {
       await axios.post('http://localhost:3001/api/users/add', {
         user_name, email, phone, password
       });
-      alert('Registered successfully');
+      showSuccess('Registered successfully'); // ✅ Toast instead of alert
       navigate('/');
     } catch (err) {
-      alert('Registration failed');
+      showError('Registration failed');
       console.error(err);
     }
   };

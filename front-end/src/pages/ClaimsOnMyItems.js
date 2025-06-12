@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import '../ClaimsOnMyItems.css';
+import { showSuccess, showError } from '../ToastService';
+import '../dashboardStyles.css'; 
+import { Link } from 'react-router-dom';
 
 const ClaimsOnMyItems = () => {
   const [claims, setClaims] = useState([]);
@@ -13,8 +16,10 @@ const ClaimsOnMyItems = () => {
       });
       const data = await res.json();
       if (res.ok) setClaims(data.claims);
+      else showError(data.message || 'Failed to fetch claims');
     } catch (error) {
       console.error('Error fetching claims:', error);
+      showError('Server error while fetching claims');
     } finally {
       setLoading(false);
     }
@@ -33,13 +38,14 @@ const ClaimsOnMyItems = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        alert(data.message);
+        showSuccess(data.message || 'Status updated');
         fetchClaims();
       } else {
-        alert(data.message);
+        showError(data.message || 'Failed to update status');
       }
     } catch (err) {
       console.error('Update error:', err);
+      showError('Server error during update');
     }
   };
 
@@ -49,6 +55,18 @@ const ClaimsOnMyItems = () => {
 
   return (
     <div className="claims-container">
+
+      <nav className="dashboard-nav">
+              <Link to="/add-item">Add Item</Link>
+              <Link to="/search-item">Search Items</Link>
+              <Link to="/my-claims">My Claims</Link>
+              <Link to="/view-claims">Claims on My Items</Link>
+                            <Link to="/dashboard">Home page</Link>
+              
+              
+            </nav>
+
+
       <h2>Claims on Your Items</h2>
       {loading ? (
         <p>Loading...</p>
