@@ -45,3 +45,40 @@
 .submit-button:hover {
   background-color: #0056b3;
 }
+
+
+
+.dashboard-nav {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+  padding: 12px 16px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.dashboard-nav a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.dashboard-nav a:hover {
+  text-decoration: underline;
+}
+
+.dashboard-nav button {
+  margin-left: auto;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.dashboard-nav button:hover {
+  background-color: #c82333;
+}
