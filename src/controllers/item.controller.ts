@@ -113,6 +113,7 @@ export const getLostItems = async (req: Request, res: Response) => {
     items.id AS item_id,
     items.item_type,
     items.city,
+    items.description,
     items.image,
     items.created_at,
     users.user_name,
@@ -136,5 +137,51 @@ export const getLostItems = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching lost items:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+// DELETE /api/items/:id
+export const deleteItem = async (req: Request, res: Response) => {
+  const itemId = Number(req.params.id);
+  const userId = (req as any).user.id; // Assumes verifyToken adds user info
+
+  try {
+    // Optional: Verify item exists and belongs to this user
+    const [itemRows] = await pool.query(
+      "SELECT * FROM items WHERE id = ? AND created_by = ?",
+      [itemId, userId]
+    );
+
+    if ((itemRows as any[]).length === 0) {
+      return res.status(404).json({ message: "Item not found or not authorized" });
+    }
+
+    // Delete the item
+    await pool.query("DELETE FROM items WHERE id = ?", [itemId]);
+
+    res.status(200).json({ message: "Item deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting item:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+// controllers/item.controller.ts
+export const getMyItems = async (req: Request, res: Response) => {
+  const userId = (req as any).user.id;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM items WHERE created_by = ? ORDER BY created_at DESC`,
+      [userId]
+    );
+
+    res.status(200).json({ items: rows });
+  } catch (err) {
+    console.error("Error fetching user items:", err);
+    res.status(500).json({ message: "Error fetching your items" });
   }
 };

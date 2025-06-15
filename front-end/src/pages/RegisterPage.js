@@ -35,6 +35,12 @@ function RegisterPage() {
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button type="submit">Register</button>
       </form>
+      <p className="auth-redirect">
+  Already have an account?{' '}
+  <span className="auth-link" onClick={() => navigate('/')}>
+    Sign in here
+  </span>
+</p>
     </div>
   );
 }

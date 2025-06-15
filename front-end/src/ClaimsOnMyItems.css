@@ -1,50 +1,73 @@
 .claims-container {
+  max-width: 1100px;
+  margin: 30px auto;
   padding: 20px;
-  max-width: 900px;
-  margin: auto;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .claim-card {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
 }
 
-.claim-image {
-  margin-top: 8px;
-  border-radius: 4px;
-  width: 150px;
+.claim-card:hover {
+  transform: translateY(-3px);
 }
 
-.divider {
-  margin: 16px 0;
-  border: none;
-  border-top: 1px solid #ddd;
+.claim-card h3 {
+  margin-top: 0;
+  color: #333;
 }
 
-.timestamp {
-  margin-top: 12px;
+.claim-card p {
+  margin: 8px 0;
+  font-size: 15px;
   color: #555;
 }
 
+.claim-image {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 280px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  object-fit: contain;
+}
+
+.divider {
+  margin: 20px 0;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+}
+
 .button-group {
-  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
 }
 
 .action-button {
-  margin-right: 10px;
-  padding: 6px 12px;
-  background-color: silver;
-  color: black;
+  background-color: #007bff;
+  color: white;
   border: none;
-  border-radius: 4px;
+  padding: 8px 14px;
+  border-radius: 5px;
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .action-button:hover {
-  transform: scale(1.03);
+  background-color: #0056b3;
+}
+
+.timestamp {
+  font-size: 13px;
+  color: #777;
+  margin-top: 10px;
 }
