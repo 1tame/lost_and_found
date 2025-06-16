@@ -1,17 +1,15 @@
-import '../authStyles.css'; // 👈 import the style
+import '../authStyles.css';
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { showError } from '../ToastService';
 
-
 function LoginPage() {
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -31,39 +29,47 @@ function LoginPage() {
 
   return (
     <div className="auth-container">
+      <h1 className="site-title">🔐 Lost & Found System</h1>
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
-  <input
-    type="email"
-    placeholder="Email"
-    value={email}
-    onChange={(e) => setEmail(e.target.value)}
-  />
-  <div className="password-wrapper">
-  <input
-    type={showPassword ? 'text' : 'password'}
-    placeholder="Password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-  />
-  <span
-    className="eye-toggle"
-    onClick={() => setShowPassword(!showPassword)}
-    title={showPassword ? 'Hide Password' : 'Show Password'}
-  >
-    {showPassword ? '👁' : '👁️‍🗨'} {/* 👁 for show, 👁️‍🗨 for hide */}
-  </span>
-</div>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <div className="password-wrapper">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <span
+            className="eye-toggle"
+            onClick={() => setShowPassword(!showPassword)}
+            title={showPassword ? 'Hide Password' : 'Show Password'}
+          >
+            {showPassword ? '👁' : '👁️‍🗨'}
+          </span>
+        </div>
+        
+        <button type="submit">Login</button>
+      </form>
 
-  <button type="submit">Login</button>
-</form>
+      
 
-<p className="auth-redirect">
-  Don't have an account?{' '}
-  <span className="auth-link" onClick={() => navigate('/register')}>
-    Sign up here
-  </span>
-</p>
+      <p className="auth-redirect">
+        <div className="forgot-password" onClick={() => navigate('/forgot-password')}>
+         Forgot Password?</div>
+         
+        Don’t have an account?{' '}
+        <span className="auth-link" onClick={() => navigate('/register')}>
+          Sign up here
+        </span>
+      </p>
     </div>
   );
 }

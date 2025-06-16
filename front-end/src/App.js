@@ -10,6 +10,8 @@ import MyClaimHistory from './pages/MyClaimsHistory';
 import MyItemsPage from './pages/MyItemsPages';
 import { ToastContainer } from 'react-toastify';
 import { NotificationProvider } from './pages/NotificationContext';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 
 function App() {
@@ -27,6 +29,9 @@ function App() {
             <Route path="/view-claims" element={<ClaimsOnMyItems />} />
             <Route path="/my-claims" element={<MyClaimHistory />} />
             <Route path="/my-items" element={<MyItemsPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+           <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
           </Routes>
         </div>
       </NotificationProvider>

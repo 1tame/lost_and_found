@@ -125,3 +125,51 @@
   cursor: pointer;
   font-size: 18px;
 }
+
+
+.site-title {
+  text-align: center;
+  font-size: 1.6rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.eye-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  user-select: none;
+}
+
+.forgot-password {
+  font-size: 0.9rem;
+  color: #3498db;
+  cursor: pointer;
+  margin: 6px 0 10px;
+  text-align: right;
+}
+
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 20px; /* space for the eye icon */
+}
+
+.eye-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+}
