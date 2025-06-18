@@ -1,2 +1,1 @@
-
-SELECT * FROM table claims
+DESCRIBE items;
