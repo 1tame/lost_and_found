@@ -12,12 +12,14 @@ import { ToastContainer } from 'react-toastify';
 import { NotificationProvider } from './pages/NotificationContext';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import { LocationProvider } from './pages/LocationContext';
 
 
 function App() {
   return (
     <Router>
       <NotificationProvider>
+         <LocationProvider> 
         <div>
           <ToastContainer />
           <Routes>
@@ -34,6 +36,7 @@ function App() {
 
           </Routes>
         </div>
+         </LocationProvider>
       </NotificationProvider>
     </Router>
   );

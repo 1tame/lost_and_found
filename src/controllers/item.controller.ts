@@ -1,14 +1,22 @@
 import { Request, Response } from "express";
 import { pool } from '../config/db';
-import { Item } from '../interfaces/item.interface';
-//import { RowDataPacket } from "mysql2";
 
-
-//Add item
+// Add Item with support for location & image
 export const addItem = async (req: Request, res: Response) => {
   try {
-    const { item_type, city, status, description } = req.body;
+    const {
+      item_type,
+      city,
+      status,
+      description,
+      latitude,
+      longitude
+    } = req.body;
 
+    // Log for debugging
+    console.log("Parsed req.body:", req.body);
+
+    // Validate required
     if (!item_type || !city || !status) {
       return res.status(400).json({ message: "All fields are required!" });
     }
@@ -19,25 +27,26 @@ export const addItem = async (req: Request, res: Response) => {
 
     const created_by = (req as any).user.id;
 
-    // 🟡 For lost items: require description
     if (status === 'Lost' && !description) {
       return res.status(400).json({ message: "Description is required for lost items." });
     }
 
-    // 🟡 For lost items: check if image file is provided
+    // 🌍 Location parsing
+    const lat = latitude && !isNaN(parseFloat(latitude)) ? parseFloat(latitude) : null;
+    const lng = longitude && !isNaN(parseFloat(longitude)) ? parseFloat(longitude) : null;
+
+    // 🖼️ Image
     let image = null;
-    if (status === 'Lost') {
-      if (req.file) {
-        image = req.file.filename;
-      } else {
-        // image is optional, so we allow it to stay null
-        image = null;
-      }
+    if (status === 'Lost' && req.file) {
+      image = req.file.filename;
     }
 
     const query = `
-      INSERT INTO items (item_type, city, status, created_by, description, image)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO items (
+        item_type, city, status, created_by,
+        description, image, latitude, longitude
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -47,6 +56,8 @@ export const addItem = async (req: Request, res: Response) => {
       created_by,
       status === 'Lost' ? description : null,
       status === 'Lost' ? image : null,
+      lat,
+      lng,
     ];
 
     const [result] = await pool.execute(query, values);
@@ -58,13 +69,15 @@ export const addItem = async (req: Request, res: Response) => {
         item_type,
         city,
         status,
-        description: status === 'Lost' ? description : undefined,
-        image: status === 'Lost' ? image : undefined,
-      },
+        description,
+        image,
+        latitude: lat,
+        longitude: lng,
+      }
     });
   } catch (error) {
     console.error('Error adding item:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error while adding item' });
   }
 };
 
@@ -183,5 +196,88 @@ export const getMyItems = async (req: Request, res: Response) => {
   } catch (err) {
     console.error("Error fetching user items:", err);
     res.status(500).json({ message: "Error fetching your items" });
+  }
+};
+
+//get nearby items
+export const getNearbyItems = async (req: Request, res: Response) => {
+  const { latitude, longitude } = req.query;
+
+  if (!latitude || !longitude) {
+    return res.status(400).json({ message: 'Location required' });
+  }
+
+  const lat = parseFloat(latitude as string);
+  const lng = parseFloat(longitude as string);
+  const radius = 10; // km
+
+  const query = `
+    SELECT *, (
+      6371 * acos(
+        cos(radians(?)) *
+        cos(radians(latitude)) *
+        cos(radians(longitude) - radians(?)) +
+        sin(radians(?)) *
+        sin(radians(latitude))
+      )
+    ) AS distance
+    FROM items
+    WHERE status = 'Found' AND latitude IS NOT NULL AND longitude IS NOT NULL
+    HAVING distance <= ?
+    ORDER BY distance ASC
+  `;
+
+  try {
+    const [rows] = await pool.query(query, [lat, lng, lat, radius]);
+    res.status(200).json({ nearby: rows });
+  } catch (error) {
+    console.error('Error fetching nearby items:', error);
+    res.status(500).json({ message: 'Failed to fetch nearby items' });
+  }
+};
+
+
+
+// controllers/itemController.ts
+
+export const getNearbyLostItems = async (req: Request, res: Response) => {
+  const { latitude, longitude } = req.query;
+
+  if (!latitude || !longitude) {
+    return res.status(400).json({ message: 'Missing location data' });
+  }
+
+  try {
+    const query = `
+      SELECT 
+        items.id AS item_id,
+        items.item_type,
+        items.city,
+        items.description,
+        items.image,
+        items.created_at,
+        users.user_name,
+        users.email,
+        users.phone
+      FROM items
+      JOIN users ON items.created_by = users.id
+      WHERE items.status = 'Lost'
+        AND ABS(items.latitude - ?) <= 0.2
+        AND ABS(items.longitude - ?) <= 0.2
+    `;
+
+    const [result] = await pool.execute(query, [latitude, longitude]);
+
+    if ((result as any[]).length === 0) {
+      return res.status(404).json({ message: 'No nearby lost items found' });
+    }
+
+    res.status(200).json({
+      message: 'Nearby lost items fetched successfully',
+      nearbyLost: result,
+    });
+  } catch (error) {
+    console.error('Error fetching nearby lost items:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

@@ -1,3 +1,4 @@
+// src/pages/AddItemPage.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../dashboardStyles.css';
@@ -5,9 +6,7 @@ import '../AddItemPage.css';
 import axios from 'axios';
 import { showSuccess, showError } from '../ToastService';
 import { useNotification } from './NotificationContext';
-//import { jwtDecode } from 'jwt-decode';
-
-
+import { useLocation } from './LocationContext';
 
 const AddItemPage = () => {
   const [item_type, setItemType] = useState('');
@@ -15,81 +14,55 @@ const AddItemPage = () => {
   const [status, setStatus] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
-  //const [user, setUser] = useState(null);
-  
+  const { location } = useLocation();
   const {
     newClaimCount,
     setNewClaimCount,
     updatedClaimCount,
     setUpdatedClaimCount
   } = useNotification();
-
   const navigate = useNavigate();
 
-  /* Check login and decode token
-    useEffect(() => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/');
-        return;
-      }
-  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const fetchNotifications = async () => {
       try {
-        const decoded = jwtDecode(token);
-        setUser(decoded);
+        const ownerRes = await axios.get('http://localhost:3001/api/notifications/owner/new-claims', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const claimantRes = await axios.get('http://localhost:3001/api/notifications/claimant/status-updates', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        setNewClaimCount(ownerRes.data.newClaimCount || 0);
+        setUpdatedClaimCount(claimantRes.data.updatedClaimCount || 0);
       } catch (error) {
-        console.error('Invalid token');
-        localStorage.removeItem('token');
-        navigate('/');
+        console.error('Failed to fetch notifications:', error);
       }
-    }, [navigate]);
-  
-    */
-     // Fetch claim notifications
-      useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-    
-        const fetchNotifications = async () => {
-          try {
-            const ownerRes = await axios.get('http://localhost:3001/api/notifications/owner/new-claims', {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-    
-            const claimantRes = await axios.get('http://localhost:3001/api/notifications/claimant/status-updates', {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-    
-            setNewClaimCount(ownerRes.data.newClaimCount || 0);
-            setUpdatedClaimCount(claimantRes.data.updatedClaimCount || 0);
-          } catch (error) {
-            console.error('Failed to fetch notifications:', error);
-          }
-        };
-    
-        fetchNotifications();
-      }, [setNewClaimCount, setUpdatedClaimCount]);
-    
+    };
+
+    fetchNotifications();
+  }, [setNewClaimCount, setUpdatedClaimCount]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
+    localStorage.clear();
     navigate('/');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!item_type || !city || !status) {
       showError('Item type, city, and status are required');
       return;
     }
 
     const token = localStorage.getItem('token');
-
     try {
       let response;
+      const latitude = location?.latitude;
+      const longitude = location?.longitude;
 
       if (status === 'Lost') {
         const formData = new FormData();
@@ -98,6 +71,10 @@ const AddItemPage = () => {
         formData.append('status', status);
         formData.append('description', description);
         if (image) formData.append('image', image);
+        if (latitude !== undefined && longitude !== undefined && latitude !== null && longitude !== null) {
+  formData.append('latitude', latitude.toString());
+  formData.append('longitude', longitude.toString());
+}
 
         response = await fetch('http://localhost:3001/api/items/add', {
           method: 'POST',
@@ -105,13 +82,19 @@ const AddItemPage = () => {
           body: formData,
         });
       } else {
+        const body = { item_type, city, status };
+        if (latitude && longitude) {
+          body.latitude = latitude;
+          body.longitude = longitude;
+        }
+
         response = await fetch('http://localhost:3001/api/items/add', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ item_type, city, status }),
+          body: JSON.stringify(body),
         });
       }
 
@@ -135,31 +118,25 @@ const AddItemPage = () => {
 
   return (
     <div className="dashboard-page">
-      {/* Header and Nav */}
       <header className="dashboard-header">
         <h2>Add New Item</h2>
         <button className="logout-button" onClick={handleLogout}>Logout</button>
       </header>
 
-      
-            <nav className="dashboard-nav">
-              <Link to="/dashboard">🏠 Home</Link>
-              <Link to="/add-item">➕ Add Item</Link>
-              <Link to="/search-item">🔍 Search</Link>
-              <Link to="/my-items">📦 My Items</Link>
-              <Link to="/my-claims">
-                📄 My Claims
-                {updatedClaimCount > 0 && (
-                  <span className="badge">{updatedClaimCount}</span>
-                )}
-              </Link>
-              <Link to="/view-claims">
-                📥 Claims on My Items
-                {newClaimCount > 0 && (
-                  <span className="badge">{newClaimCount}</span>
-                )}
-              </Link>
-            </nav>
+      <nav className="dashboard-nav">
+        <Link to="/dashboard">🏠 Home</Link>
+        <Link to="/add-item">➕ Add Item</Link>
+        <Link to="/search-item">🔍 Search</Link>
+        <Link to="/my-items">📦 My Items</Link>
+        <Link to="/my-claims">
+          📄 My Claims
+          {updatedClaimCount > 0 && <span className="badge">{updatedClaimCount}</span>}
+        </Link>
+        <Link to="/view-claims">
+          📥 Claims on My Items
+          {newClaimCount > 0 && <span className="badge">{newClaimCount}</span>}
+        </Link>
+      </nav>
 
       <section className="dashboard-content">
         <div className="form-wrapper">
@@ -226,9 +203,7 @@ const AddItemPage = () => {
               </>
             )}
 
-            <button type="submit" className="submit-button">
-              Submit Item
-            </button>
+            <button type="submit" className="submit-button">Submit Item</button>
           </form>
         </div>
       </section>
